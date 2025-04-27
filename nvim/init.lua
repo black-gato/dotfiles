@@ -83,7 +83,7 @@ I hope you enjoy your Neovim journey,
 
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
-
+vim.g.neovim_mode = vim.env.NEOVIM_MODE or 'default'
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -159,6 +159,13 @@ vim.opt.scrolloff = 10
 
 vim.opt.conceallevel = 1
 
+if vim.g.neovim_mode == 'NOTE' then
+  vim.opt.cmdheight = 0
+  vim.opt.statusline = '%m'
+
+  vim.opt.number = false
+  vim.opt.relativenumber = false
+end
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -245,18 +252,22 @@ require('lazy').setup({
   --    require('gitsigns').setup({ ... })
   --
   -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
+
+  vim.g.neovim_mode ~= 'NOTE'
+      and {
+        -- Adds git related signs to the gutter, as well as utilities for managing changes
+        'lewis6991/gitsigns.nvim',
+        opts = {
+          signs = {
+            add = { text = '+' },
+            change = { text = '~' },
+            delete = { text = '_' },
+            topdelete = { text = '‾' },
+            changedelete = { text = '~' },
+          },
+        },
+      }
+    or {},
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -867,7 +878,12 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false, highlight = { comments_only = false } },
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
